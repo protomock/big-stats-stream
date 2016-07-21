@@ -1,0 +1,26 @@
+{
+  "name": "big-stats",
+  "version": "0.1.0",
+  "description": "google big query backend for statsd",
+  "main": "index.js",
+  "scripts": {
+    "run": "node -e require('.').run()"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/meetup/big-stats.git"
+  },
+  "keywords": [
+    "statsd",
+    "bigquery"
+  ],
+  "author": "Doug Tangren <doug@meetup.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/meetup/big-stats/issues"
+  },
+  "homepage": "https://github.com/meetup/big-stats",
+  "dependencies": {
+    "googleapis": "^12.0.0"
+  }
+}
