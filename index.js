@@ -1,11 +1,11 @@
 var google = require('googleapis');
-var bigquery = google.bigquery('v2');
+var bq = google.bigquery('v2');
 var projectId = process.env.PROJECT_ID;
 var datasetId = process.env.DATASET_ID;
 var tableId = process.env.TABLE_ID;
 var key = process.env.GOOGLE_API_CREDENTIALS;
 
-var client = new google.auth.JWT(
+var auth = new google.auth.JWT(
   key.client_email,
   null,
   key.private_key,
@@ -13,7 +13,7 @@ var client = new google.auth.JWT(
   null
 );
 
-client.authorize(function(err, tokens) {
+auth.authorize(function(err, tokens) {
   if (err) {
     console.log(err);
     return;
@@ -21,12 +21,12 @@ client.authorize(function(err, tokens) {
   console.log("google client is authorized");
 });
 
-var record = function(key, value, timestamp) {
+var write = function(key, value, timestamp) {
   // https://cloud.google.com/bigquery/docs/reference/v2/jobs/insert
   var request = {
     projectId: projectId,
     datasetId: datasetId,
-    auth: client,
+    auth: auth,
     dryRun: true,
     resource: {
       mimeType: "application/json",
@@ -46,10 +46,11 @@ var record = function(key, value, timestamp) {
     },
     media: {
       mimeType: "*/*",
+      // TODO: multiple rows
       body: JSON.stringify({key: key, value: value, timestamp: timestamp})
     }
   };
-  bigquery.jobs.insert(request, function (err, result) {
+  bq.jobs.insert(request, function (err, result) {
     if (err) {
       console.log(err);
     } else {
@@ -58,6 +59,22 @@ var record = function(key, value, timestamp) {
   });
 }
 
+// statsd interface
+
+var flush = function(ts, metrics) {
+  // TODO: format and write to bq
+}
+
+var status = function(writeCb) {
+  // TODO: write status
+}
+
+module.exports.init = function(startup_time, config, events, logger) {
+  events.on('flush', flush);
+  events.on('status', status);
+}
+
+// test
 module.exports.run = function() {
-  record("foo.bar", 123, new Date().toISOString())
+  write("foo.bar", 123, new Date().toISOString())
 }
