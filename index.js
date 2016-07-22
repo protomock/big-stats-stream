@@ -1,7 +1,8 @@
 var google = require('googleapis');
 var bq = google.bigquery('v2');
 
-var Writer = function(options) {
+var Writer = function(options, logger) {
+  var log = logger || console;
   var key = options.key;
   var projectId = options.projectId;
   var datasetId = options.datasetId;
@@ -16,11 +17,11 @@ var Writer = function(options) {
 
   auth.authorize(function(err, tokens) {
     if (err) {
-      console.log("failed to authorize client");
-      console.log(err);
+      log.log("failed to authorize client");
+      log.log(err);
       return;
     }
-    console.log("google client is authorized");
+    log.log("google client is authorized");
   });
 
   var write = function(key, value, timestamp) {
@@ -53,9 +54,9 @@ var Writer = function(options) {
     };
     bq.jobs.insert(request, function (err, result) {
       if (err) {
-        console.log(err);
+        log.log(err);
       } else {
-        console.log(result);
+        log.log(result);
       }
     });
   }
@@ -63,6 +64,46 @@ var Writer = function(options) {
   // statsd interface
   var flush = function(ts, metrics) {
     // TODO: format and write to bq
+    var time = new Date(ts * 1000).toISOString();
+    log.log("" + time)
+    console.log(metrics)
+
+    var buffer = [];
+    var counters = metrics.counters;
+    var gauges = metrics.gauges;
+    var timers = metrics.timers;
+    var sets = metrics.sets;
+    var counterRates = metrics.counter_rates;
+    var timerData = metrics.timer_data;
+    var statsdMetrics = metrics.statsd_metrics;
+
+    function sanitize(key) {
+      return key.replace(/\s+/g, '_')
+                 .replace(/\//g, '-')
+                 .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+    }
+
+    for (key in counters) {
+      var value = counters[key];
+      var valuePerSecond = counterRates[key];
+      var keyName = sanitize(key);
+      var namespace = ["counters"];
+      buffer.push([namespace.concat(keyName).concat('rate').join("."), valuePerSecond]);
+      buffer.push([namespace.concat(keyName).concat('count').join("."), value]);
+    }
+
+    for (key in timerData) {
+      var keyName = sanitize(key);
+      var namespace = ["timers"];
+      for (timerDataKey in timerData[key]) {
+        var value = timerData[key][timerDataKey];
+        if (typeof(value) === 'number') {
+          buffer.push([namespace.concat(keyName).concat(timerDataKey).join("."), value])
+        } else {
+            // TODO: subkeys
+        }
+      }
+    }
   };
 
   var status = function(writeCb) {
@@ -79,9 +120,10 @@ var Writer = function(options) {
 
 // statsd entrypoint
 module.exports.init = function(startup_time, config, events, logger) {
-  var writer = Writer(config.bigquery || {});
+  var writer = Writer(config.bigquery || {}, logger);
   events.on('flush', writer.flush);
   events.on('status', writer.status);
+  return true;
 }
 
 // test
