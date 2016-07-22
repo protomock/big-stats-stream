@@ -63,7 +63,6 @@ var Writer = function(options, logger) {
 
   // statsd interface
   var flush = function(ts, metrics) {
-    // TODO: format and write to bq
     var time = new Date(ts * 1000).toISOString();
     log.log("" + time)
     console.log(metrics)
@@ -83,6 +82,7 @@ var Writer = function(options, logger) {
                  .replace(/[^a-zA-Z_\-0-9\.]/g, '');
     }
 
+    // counters
     for (key in counters) {
       var value = counters[key];
       var valuePerSecond = counterRates[key];
@@ -92,6 +92,7 @@ var Writer = function(options, logger) {
       buffer.push([namespace.concat(keyName).concat('count').join("."), value]);
     }
 
+    // timers
     for (key in timerData) {
       var keyName = sanitize(key);
       var namespace = ["timers"];
@@ -104,6 +105,20 @@ var Writer = function(options, logger) {
         }
       }
     }
+
+    // guages
+    for (key in gauges) {
+      var namespace = ["gauges"].concat(sanitize(key));
+      buffer.push([namespace.join("."), gauges[key]]);
+    }
+
+    // sets
+    for (key in sets) {
+      var namespace = setsNamespace.concat(sanitize(key));
+      buffer.push([namespace.join(".") + '.count', sets[key].size()]);
+    }
+    // TODO: write to bq
+    console.log(buffer);
   };
 
   var status = function(writeCb) {
