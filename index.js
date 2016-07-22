@@ -29,7 +29,6 @@ var Writer = function(options) {
       projectId: projectId,
       datasetId: datasetId,
       auth: auth,
-      dryRun: true,
       resource: {
         mimeType: "application/json",
         configuration: {
