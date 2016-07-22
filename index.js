@@ -69,7 +69,6 @@ var Writer = function(options) {
     // TODO: write status
   };
 
-
   // public api
   return {
     flush: flush,
