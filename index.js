@@ -114,7 +114,7 @@ var Writer = function(options, logger) {
 
     // sets
     for (key in sets) {
-      var namespace = setsNamespace.concat(sanitize(key));
+      var namespace = ["sets"].concat(sanitize(key));
       buffer.push([namespace.join(".") + '.count', sets[key].size()]);
     }
     // TODO: write to bq
