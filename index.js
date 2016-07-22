@@ -61,15 +61,19 @@ var Writer = function(options) {
   }
 
   // statsd interface
+  var flush = function(ts, metrics) {
+    // TODO: format and write to bq
+  };
 
+  var status = function(writeCb) {
+    // TODO: write status
+  };
+
+
+  // public api
   return {
-    flush: function(ts, metrics) {
-      // TODO: format and write to bq
-    },
-
-    status: function(writeCb) {
-      // TODO: write status
-    },
+    flush: flush,
+    status: status,
     write: write
   }
 }
