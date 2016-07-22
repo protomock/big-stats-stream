@@ -1,8 +1,6 @@
 var google = require('googleapis');
 var bq = google.bigquery('v2');
 
-
-
 var Writer = function(options) {
   var key = options.key;
   var projectId = options.projectId;
