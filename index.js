@@ -6,7 +6,7 @@ var newRow = function(key, value, timestamp) {
 }
 
 var statsdMetic = function(name) {
-  return name.startsWith("statsd")
+  return name.startsWith("statsd.")
 }
 
 var Writer = function(options, logger) {
