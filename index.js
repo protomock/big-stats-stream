@@ -73,7 +73,7 @@ var Writer = function(options, logger) {
     console.log(metrics)
     var counters = metrics.counters;
     // do nothing if there's nothing to do
-    if (parseInt(counters["statsd.packets_received"]) < 1) {
+    if (parseInt(counters["statsd.metrics_received"]) < 1) {
       console.log("no packets received")
       return
     }
