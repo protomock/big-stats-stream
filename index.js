@@ -1,6 +1,14 @@
 var google = require('googleapis');
 var bq = google.bigquery('v2');
 
+var newRow = function(key, value, timestamp) {
+  return { "key": key, "value": value, "timestamp": timestamp }
+}
+
+var statsdMetic = function(name) {
+  return name.startsWith("statsd")
+}
+
 var Writer = function(options, logger) {
   var log = logger || console;
   var key = options.key;
@@ -24,7 +32,7 @@ var Writer = function(options, logger) {
     log.log("google client is authorized");
   });
 
-  var write = function(key, value, timestamp) {
+  var write = function(rows) {
     // https://cloud.google.com/bigquery/docs/reference/v2/jobs/insert
     var request = {
       projectId: projectId,
@@ -48,8 +56,7 @@ var Writer = function(options, logger) {
       },
       media: {
         mimeType: "*/*",
-        // TODO: multiple rows
-        body: JSON.stringify({key: key, value: value, timestamp: timestamp})
+        body: rows.map(JSON.stringify).join("\n")
       }
     };
     bq.jobs.insert(request, function (err, result) {
@@ -63,12 +70,16 @@ var Writer = function(options, logger) {
 
   // statsd interface
   var flush = function(ts, metrics) {
-    var time = new Date(ts * 1000).toISOString();
-    log.log("" + time)
     console.log(metrics)
-
-    var buffer = [];
     var counters = metrics.counters;
+    // do nothing if there's nothing to do
+    if (parseInt(counters["statsd.packets_received"]) < 1) {
+      console.log("no packets received")
+      return
+    }
+
+    var time = new Date(ts * 1000).toISOString();
+    var rows = [];
     var gauges = metrics.gauges;
     var timers = metrics.timers;
     var sets = metrics.sets;
@@ -84,12 +95,14 @@ var Writer = function(options, logger) {
 
     // counters
     for (key in counters) {
+      if (statsdMetic(key)) {
+        continue
+      }
       var value = counters[key];
       var valuePerSecond = counterRates[key];
-      var keyName = sanitize(key);
-      var namespace = ["counters"];
-      buffer.push([namespace.concat(keyName).concat('rate').join("."), valuePerSecond]);
-      buffer.push([namespace.concat(keyName).concat('count').join("."), value]);
+      var namespace = ["counters"].concat(sanitize(key));
+      rows.push(newRow(namespace.concat('rate').join("."), valuePerSecond, time));
+      rows.push(newRow(namespace.concat('count').join("."), value, time));
     }
 
     // timers
@@ -99,7 +112,7 @@ var Writer = function(options, logger) {
       for (timerDataKey in timerData[key]) {
         var value = timerData[key][timerDataKey];
         if (typeof(value) === 'number') {
-          buffer.push([namespace.concat(keyName).concat(timerDataKey).join("."), value])
+          rows.push(newRow(namespace.concat(keyName).concat(timerDataKey).join("."), value, time))
         } else {
             // TODO: subkeys
         }
@@ -109,16 +122,16 @@ var Writer = function(options, logger) {
     // guages
     for (key in gauges) {
       var namespace = ["gauges"].concat(sanitize(key));
-      buffer.push([namespace.join("."), gauges[key]]);
+      rows.push(newRow(namespace.join("."), gauges[key], time));
     }
 
     // sets
     for (key in sets) {
       var namespace = ["sets"].concat(sanitize(key));
-      buffer.push([namespace.join(".") + '.count', sets[key].size()]);
+      rows.push(newRow(namespace.join(".") + '.count', sets[key].size(), time));
     }
     // TODO: write to bq
-    console.log(buffer);
+    console.log(rows);
   };
 
   var status = function(writeCb) {
@@ -149,5 +162,5 @@ module.exports.run = function() {
     tableId: process.env.TABLE_ID,
     key: JSON.parse(process.env.GOOGLE_API_CREDENTIALS)
   })
-  writer.write("foo.bar", 123, new Date().toISOString())
+  writer.write([newRow("foo.bar", 123, new Date().toISOString())])
 }
