@@ -67,11 +67,14 @@ var Writer = function(options, logger) {
         body: rows.map(JSON.stringify).join("\n")
       }
     };
+    log.log("submitting insert job")
+    console.log(request.media.body);
     bq.jobs.insert(request, function (err, result) {
       if (err) {
+        log.log("failed to submit bigquery insert job")
         log.log(err);
       } else {
-        log.log(result);
+        log.log("bigquery job accepted")
       }
     });
   }
@@ -115,6 +118,9 @@ var Writer = function(options, logger) {
 
     // timers
     for (key in timerData) {
+      if (statsdMetic(key)) {
+        continue
+      }
       var namespace = timerNamespace.concat(sanitize(key));
       for (timerDataKey in timerData[key]) {
         var value = timerData[key][timerDataKey];
@@ -128,17 +134,24 @@ var Writer = function(options, logger) {
 
     // guages
     for (key in gauges) {
+      if (statsdMetic(key)) {
+        continue
+      }
       var namespace = gaugeNamespace.concat(sanitize(key));
       rows.push(newRow(namespace.join("."), gauges[key], time));
     }
 
     // sets
     for (key in sets) {
+      if (statsdMetic(key)) {
+        continue
+      }
       var namespace = setNamespace.concat(sanitize(key));
       rows.push(newRow(namespace.join(".") + '.count', sets[key].size(), time));
     }
     // TODO: write to bq
     console.log(rows);
+    write(rows);
   };
 
   var status = function(writeCb) {
@@ -169,5 +182,5 @@ module.exports.run = function() {
     tableId: process.env.TABLE_ID,
     key: JSON.parse(process.env.GOOGLE_API_CREDENTIALS)
   })
-  writer.write([newRow("foo.bar", 123, new Date().toISOString())])
+  writer.write([newRow("foo.bar", 123.0, new Date().toISOString())])
 }
