@@ -12,7 +12,7 @@ var statsdMetic = function(name) {
 var Writer = function(options, logger) {
   var log = logger || console;
   // big query table info
-  var key = options.key;
+  var credentials = options.credentials;
   var projectId = options.projectId;
   var datasetId = options.datasetId;
   var tableId = options.tableId;
@@ -23,10 +23,14 @@ var Writer = function(options, logger) {
   var gaugeNamespace = globalNamespace.concat(options.guagePrefix !== undefined ? options.guagePrefix : "gauges");
   var setNamespace = globalNamespace.concat(options.setPrefix !== undefined ? options.setPrefix : "sets");
 
+  if (credentials === undefined || credentials.client_email === undefined || credentials.private_key === undefined) {
+    log.log("failed to initialize due missing authentication credentials")
+    return;
+  }
   var auth = new google.auth.JWT(
-    key.client_email,
+    credentials.client_email,
     null,
-    key.private_key,
+    credentials.private_key,
     ['https://www.googleapis.com/auth/bigquery'],
     null
   );
@@ -169,13 +173,16 @@ var Writer = function(options, logger) {
 // statsd entrypoint
 module.exports.init = function(startup_time, config, events, logger) {
   var writer = Writer(config.bigquery || {}, logger);
+  if (writer === undefined) {
+    return false;
+  }
   events.on('flush', writer.flush);
   events.on('status', writer.status);
   return true;
 }
 
 // test
-module.exports.run = function() {
+module.exports.smokeTest = function() {
   var writer = Writer({
     projectId: process.env.PROJECT_ID,
     datasetId: process.env.DATASET_ID,
