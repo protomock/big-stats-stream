@@ -11,10 +11,18 @@ var statsdMetic = function(name) {
 
 var Writer = function(options, logger) {
   var log = logger || console;
+  // big query table info
   var key = options.key;
   var projectId = options.projectId;
   var datasetId = options.datasetId;
   var tableId = options.tableId;
+  // stat key prefixes
+  var globalNamespace = [options.globalPrefix !== undefined ? options.globalPrefix : "stats"];
+  var counterNamespace = globalNamespace.concat(options.counterPrefix !== undefined ? options.counterPrefix : "counters");
+  var timerNamespace = globalNamespace.concat(options.timerPrefix !== undefined ? options.timerPrefix : "timers");
+  var gaugeNamespace = globalNamespace.concat(options.guagePrefix !== undefined ? options.guagePrefix : "gauges");
+  var setNamespace = globalNamespace.concat(options.setPrefix !== undefined ? options.setPrefix : "sets");
+
   var auth = new google.auth.JWT(
     key.client_email,
     null,
@@ -74,7 +82,7 @@ var Writer = function(options, logger) {
     var counters = metrics.counters;
     // do nothing if there's nothing to do
     if (parseInt(counters["statsd.metrics_received"]) < 1) {
-      console.log("no packets received")
+      console.log("no metrics received")
       return
     }
 
@@ -100,19 +108,18 @@ var Writer = function(options, logger) {
       }
       var value = counters[key];
       var valuePerSecond = counterRates[key];
-      var namespace = ["counters"].concat(sanitize(key));
+      var namespace = counterNamespace.concat(sanitize(key));
       rows.push(newRow(namespace.concat('rate').join("."), valuePerSecond, time));
       rows.push(newRow(namespace.concat('count').join("."), value, time));
     }
 
     // timers
     for (key in timerData) {
-      var keyName = sanitize(key);
-      var namespace = ["timers"];
+      var namespace = timerNamespace.concat(sanitize(key));
       for (timerDataKey in timerData[key]) {
         var value = timerData[key][timerDataKey];
         if (typeof(value) === 'number') {
-          rows.push(newRow(namespace.concat(keyName).concat(timerDataKey).join("."), value, time))
+          rows.push(newRow(namespace.concat(timerDataKey).join("."), value, time))
         } else {
             // TODO: subkeys
         }
@@ -121,13 +128,13 @@ var Writer = function(options, logger) {
 
     // guages
     for (key in gauges) {
-      var namespace = ["gauges"].concat(sanitize(key));
+      var namespace = gaugeNamespace.concat(sanitize(key));
       rows.push(newRow(namespace.join("."), gauges[key], time));
     }
 
     // sets
     for (key in sets) {
-      var namespace = ["sets"].concat(sanitize(key));
+      var namespace = setNamespace.concat(sanitize(key));
       rows.push(newRow(namespace.join(".") + '.count', sets[key].size(), time));
     }
     // TODO: write to bq
