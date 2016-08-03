@@ -16,7 +16,7 @@
     "bigquery"
   ],
   "author": "Doug Tangren <doug@meetup.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/meetup/big-stats/issues"
   },
