@@ -24,4 +24,4 @@ before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
 
 script:
-  - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ]; then docker run -t -v $PWD:/usr/src/app -w /usr/src/app node:6  make publish; else  docker run -t -v $PWD:/usr/src/app -w /usr/src/app node:6  make test fi'
+  - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ]; then docker run -t -v $PWD:/usr/src/app -w /usr/src/app node:6  make publish; else  docker run -t -v $PWD:/usr/src/app -w /usr/src/app node:6  make test; fi'
