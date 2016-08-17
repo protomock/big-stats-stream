@@ -15,7 +15,7 @@
     "statsd",
     "bigquery"
   ],
-  "author": "Doug Tangren <doug@meetup.com>",
+  "author": "Meetup <ai@meetup.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/meetup/big-stats/issues"
@@ -23,5 +23,8 @@
   "homepage": "https://github.com/meetup/big-stats",
   "dependencies": {
     "googleapis": "^12.0.0"
+  },
+  "devDependencies": {
+    "nodeunit": "^0.9.1"
   }
 }

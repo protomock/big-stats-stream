@@ -4,14 +4,12 @@ TABLE_ID ?= test
 GOOGLE_API_CREDENTIALS ?= '$(shell cat google-auth-credentials.json)'
 
 package:
-	@npm install
-
-smoke-test: package
-	GOOGLE_API_CREDENTIALS=$(GOOGLE_API_CREDENTIALS) \
-	PROJECT_ID=$(PROJECT_ID) \
-	DATASET_ID=$(DATASET_ID) \
-	TABLE_ID=$(TABLE_ID) \
-	node -e 'require(".").smokeTest()'
+	@npm install --only=production
 
 test: package
+	@npm install --only=dev
 	@npm test
+
+publish:
+	# @npm login ?
+	# @npm publish

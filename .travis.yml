@@ -1,0 +1,28 @@
+sudo: required
+language: bash
+
+# Only build pushes to master.
+branches:
+  only:
+    - master
+
+services:
+  - docker
+
+cache:
+  directories:
+  # these directories are typically caches for our common build tools
+  # travis will keep persistent cache across builds to reduce
+  # the amount of redundant work these build tools to do
+  - "$HOME/node_modules"
+
+env:
+  global:
+    - CI_BUILD_NUMBER=$TRAVIS_BUILD_NUMBER
+
+before_install:
+  - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
+
+script:
+  - make test
+  - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ]; then make publish; fi'
