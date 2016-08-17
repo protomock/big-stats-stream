@@ -13,7 +13,7 @@ test: package
 	@npm test
 
 publish: test
-	echo "//registry.npmjs.org/:_authToken=$(NPM_TOKEN)" > ~/.npmrc
+	@echo "//registry.npmjs.org/:_authToken=$(NPM_TOKEN)" > ~/.npmrc
 	@ls
 	# https://docs.npmjs.com/cli/version
 	@npm version $(VERSION) -m "Version %s built by Travis CI - https://travis-ci.com/$TRAVIS_REPO_SLUG/builds/$TRAVIS_JOB_ID"
