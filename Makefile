@@ -10,6 +10,6 @@ test: package
 	@npm install --only=dev
 	@npm test
 
-publish:
+publish: test
 	# @npm login ?
 	# @npm publish
