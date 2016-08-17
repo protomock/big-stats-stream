@@ -34,7 +34,9 @@ through your google cloud console.
 in your google cloud console. big-stats will create the table on the fly if not
 previously present.
 
-Big status assumes a 3 column schema
+## schema
+
+Big stats assumes a 4 column schema
 
 | name        | data type   |description                 |
 |-------------|-------------|----------------------------|
