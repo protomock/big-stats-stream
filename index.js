@@ -1,8 +1,8 @@
 var google = require('googleapis');
 var bq = google.bigquery('v2');
 
-var newRow = function(key, value, timestamp) {
-  return { "key": key, "value": value, "timestamp": timestamp }
+var newRow = function(type, key, value, timestamp) {
+  return { "metic_type": type, "key": key, "value": value, "timestamp": timestamp }
 }
 
 var statsdMetic = function(name) {
@@ -16,12 +16,13 @@ var Writer = function(options, logger) {
   var projectId = options.projectId;
   var datasetId = options.datasetId;
   var tableId = options.tableId;
-  // stat key prefixes
-  var globalNamespace = [options.globalPrefix !== undefined ? options.globalPrefix : "stats"];
-  var counterNamespace = globalNamespace.concat(options.counterPrefix !== undefined ? options.counterPrefix : "counters");
-  var timerNamespace = globalNamespace.concat(options.timerPrefix !== undefined ? options.timerPrefix : "timers");
-  var gaugeNamespace = globalNamespace.concat(options.guagePrefix !== undefined ? options.guagePrefix : "gauges");
-  var setNamespace = globalNamespace.concat(options.setPrefix !== undefined ? options.setPrefix : "sets");
+
+  // stat metric names
+  // defines the "metric_type" vaule associated with a recorded stat
+  var counterMetic = options.counterMetricName !== undefined ? options.counterMetricName : "counter";
+  var timerMetric = options.timerMetricName !== undefined ? options.timerMetricName : "timer";
+  var gaugeMetric = options.guageMetricName !== undefined ? options.guageMetricName : "gauge";
+  var setMetric = options.setMetricName !== undefined ? options.setMetricName : "set";
 
   if (credentials === undefined || credentials.client_email === undefined || credentials.private_key === undefined) {
     log.log("failed to initialize due missing authentication credentials")
@@ -72,7 +73,7 @@ var Writer = function(options, logger) {
       }
     };
     log.log("submitting insert job")
-    console.log(request.media.body);
+    //console.log(request.media.body);
     bq.jobs.insert(request, function (err, result) {
       if (err) {
         log.log("failed to submit bigquery insert job")
@@ -85,7 +86,6 @@ var Writer = function(options, logger) {
 
   // statsd interface
   var flush = function(ts, metrics) {
-    console.log(metrics)
     var counters = metrics.counters;
     // do nothing if there's nothing to do
     if (parseInt(counters["statsd.metrics_received"]) < 1) {
@@ -115,9 +115,9 @@ var Writer = function(options, logger) {
       }
       var value = counters[key];
       var valuePerSecond = counterRates[key];
-      var namespace = counterNamespace.concat(sanitize(key));
-      rows.push(newRow(namespace.concat('rate').join("."), valuePerSecond, time));
-      rows.push(newRow(namespace.concat('count').join("."), value, time));
+      var namespace = [sanitize(key)];
+      rows.push(newRow(counterMetic, namespace.concat('rate').join("."), valuePerSecond, time));
+      rows.push(newRow(counterMetic, namespace.concat('count').join("."), value, time));
     }
 
     // timers
@@ -125,11 +125,11 @@ var Writer = function(options, logger) {
       if (statsdMetic(key)) {
         continue
       }
-      var namespace = timerNamespace.concat(sanitize(key));
+      var namespace = [sanitize(key)];
       for (timerDataKey in timerData[key]) {
         var value = timerData[key][timerDataKey];
         if (typeof(value) === 'number') {
-          rows.push(newRow(namespace.concat(timerDataKey).join("."), value, time))
+          rows.push(newRow(timerMetric, namespace.concat(timerDataKey).join("."), value, time))
         } else {
             // TODO: subkeys
         }
@@ -141,8 +141,8 @@ var Writer = function(options, logger) {
       if (statsdMetic(key)) {
         continue
       }
-      var namespace = gaugeNamespace.concat(sanitize(key));
-      rows.push(newRow(namespace.join("."), gauges[key], time));
+      var namespace = [sanitize(key)];
+      rows.push(newRow(gaugeMetric, namespace.join("."), gauges[key], time));
     }
 
     // sets
@@ -150,11 +150,9 @@ var Writer = function(options, logger) {
       if (statsdMetic(key)) {
         continue
       }
-      var namespace = setNamespace.concat(sanitize(key));
-      rows.push(newRow(namespace.join(".") + '.count', sets[key].size(), time));
+      var namespace = [sanitize(key)];
+      rows.push(newRow(setMetric, namespace.join(".") + '.count', sets[key].size(), time));
     }
-    // TODO: write to bq
-    console.log(rows);
     write(rows);
   };
 
@@ -179,15 +177,4 @@ module.exports.init = function(startup_time, config, events, logger) {
   events.on('flush', writer.flush);
   events.on('status', writer.status);
   return true;
-}
-
-// test
-module.exports.smokeTest = function() {
-  var writer = Writer({
-    projectId: process.env.PROJECT_ID,
-    datasetId: process.env.DATASET_ID,
-    tableId: process.env.TABLE_ID,
-    key: JSON.parse(process.env.GOOGLE_API_CREDENTIALS)
-  })
-  writer.write([newRow("foo.bar", 123.0, new Date().toISOString())])
 }
