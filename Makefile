@@ -1,7 +1,4 @@
-PROJECT_ID ?= meetup-prod
-DATASET_ID ?= big_stats
-TABLE_ID ?= test
-GOOGLE_API_CREDENTIALS ?= '$(shell cat google-auth-credentials.json)'
+NPM_TOKEN ?= '00000000-0000-0000-0000-000000000000'
 
 package:
 	@npm install --only=production
@@ -11,5 +8,6 @@ test: package
 	@npm test
 
 publish: test
+	echo "//registry.npmjs.org/:_authToken=$(NPM_TOKEN)" > ~/.npmrc
 	# @npm login ?
 	# @npm publish
