@@ -1,4 +1,4 @@
-# big stats [![Build Status](https://travis-ci.org/meetup/big-stats.svg?branch=master)](https://travis-ci.org/meetup/big-stats) [![NPM Version](https://img.shields.io/npm/v/big-stats.svg?maxAge=2592000)](https://npmjs.org/package/big-stats)
+# big stats [![Build Status](https://travis-ci.org/meetup/big-stats.svg?branch=master)](https://travis-ci.org/meetup/big-stats) [![NPM Version](https://img.shields.io/npm/v/big-stats.svg)](https://npmjs.org/package/big-stats)
 
 > a google [big query](https://cloud.google.com/bigquery/) backend for [statsd](https://github.com/etsy/statsd#readme)
 
@@ -34,7 +34,9 @@ through your google cloud console.
 in your google cloud console. big-stats will create the table on the fly if not
 previously present.
 
-Big status assumes a 3 column schema
+## schema
+
+Big stats assumes a 4 column schema
 
 | name        | data type   |description                 |
 |-------------|-------------|----------------------------|
