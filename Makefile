@@ -9,5 +9,4 @@ test: package
 
 publish: test
 	echo "//registry.npmjs.org/:_authToken=$(NPM_TOKEN)" > ~/.npmrc
-	# @npm login ?
-	# @npm publish
+	@npm publish
