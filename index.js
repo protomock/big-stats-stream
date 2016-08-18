@@ -72,14 +72,10 @@ var Writer = function(options, logger) {
         body: rows.map(JSON.stringify).join("\n")
       }
     };
-    log.log("submitting insert job")
-    //console.log(request.media.body);
     bq.jobs.insert(request, function (err, result) {
       if (err) {
         log.log("failed to submit bigquery insert job")
         log.log(err);
-      } else {
-        log.log("bigquery job accepted")
       }
     });
   }
@@ -89,7 +85,6 @@ var Writer = function(options, logger) {
     var counters = metrics.counters;
     // do nothing if there's nothing to do
     if (parseInt(counters["statsd.metrics_received"]) < 1) {
-      console.log("no metrics received")
       return
     }
 
