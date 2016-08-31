@@ -76,6 +76,8 @@ var Writer = function(options, logger) {
       if (err) {
         log.log("failed to submit bigquery insert job")
         log.log(err);
+      } else {
+        log.log("submitted job inserting " + rows.length + " rows")
       }
     });
   }
