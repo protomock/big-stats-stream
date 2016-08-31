@@ -1,6 +1,6 @@
 {
   "name": "big-stats",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "google big query backend for statsd",
   "main": "index.js",
   "scripts": {

@@ -20,6 +20,8 @@ var Writer = function(options, logger) {
   var flushInterval = options.flushInterval || 104;
   // last time we flushed
   var lastFlush;
+  // internal buffer
+  var buffer = [];
 
   // big query table info
   var credentials = options.credentials;
@@ -60,6 +62,11 @@ var Writer = function(options, logger) {
   }
 
   var write = function(timestamp, rows) {
+    if (shouldBuffer(ts)) {
+      log.log("buffering...")
+      buffer = buffer.concat(rows)
+      return;
+    }
     // https://cloud.google.com/bigquery/docs/reference/v2/jobs/insert
     var request = {
       projectId: projectId,
@@ -95,14 +102,11 @@ var Writer = function(options, logger) {
       }
     });
     lastFlush = timestamp;
+    buffer = [];
   }
 
   // statsd interface
   var flush = function(ts, metrics) {
-    if (shouldBuffer(ts)) {
-      log.log("buffering...")
-      return;
-    }
     var counters = metrics.counters;
     // do nothing if there's nothing to do
     if (parseInt(counters["statsd.metrics_received"]) < 1) {
