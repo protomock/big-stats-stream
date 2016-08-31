@@ -62,7 +62,7 @@ var Writer = function(options, logger) {
   }
 
   var write = function(timestamp, rows) {
-    if (shouldBuffer(ts)) {
+    if (shouldBuffer(timestamp)) {
       log.log("buffering...")
       buffer = buffer.concat(rows)
       return;
