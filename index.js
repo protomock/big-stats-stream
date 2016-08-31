@@ -11,6 +11,16 @@ var statsdMetic = function(name) {
 
 var Writer = function(options, logger) {
   var log = logger || console;
+  // flush interval
+  // defaults to 104 to avoid reaching quota limits
+  // on number of jobs/day (currently 1000)
+  // assuming 1440 minutes in a day,
+  // 1440 / 1000 = 1.44 minutes or 104 seconds
+  // https://cloud.google.com/bigquery/quota-policy#import
+  var flushInterval = options.flushInterval || 104;
+  // last time we flushed
+  var lastFlush;
+
   // big query table info
   var credentials = options.credentials;
   var projectId = options.projectId;
@@ -45,7 +55,11 @@ var Writer = function(options, logger) {
     log.log("google client is authorized");
   });
 
-  var write = function(rows) {
+  var shouldBuffer = function(timestamp) {
+    return lastFlush !== undefined && (timestamp - lastFlush) < flushInterval;
+  }
+
+  var write = function(timestamp, rows) {
     // https://cloud.google.com/bigquery/docs/reference/v2/jobs/insert
     var request = {
       projectId: projectId,
@@ -80,10 +94,15 @@ var Writer = function(options, logger) {
         log.log("submitted job inserting " + rows.length + " rows")
       }
     });
+    lastFlush = timestamp;
   }
 
   // statsd interface
   var flush = function(ts, metrics) {
+    if (shouldBuffer(ts)) {
+      log.log("buffering...")
+      return;
+    }
     var counters = metrics.counters;
     // do nothing if there's nothing to do
     if (parseInt(counters["statsd.metrics_received"]) < 1) {
@@ -150,7 +169,9 @@ var Writer = function(options, logger) {
       var namespace = [sanitize(key)];
       rows.push(newRow(setMetric, namespace.join(".") + '.count', sets[key].size(), time));
     }
-    write(rows);
+
+    // perform write
+    write(ts, rows);
   };
 
   var status = function(writeCb) {
