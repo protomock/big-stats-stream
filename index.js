@@ -67,6 +67,7 @@ var Writer = function(options, logger) {
       buffer = buffer.concat(rows)
       return;
     }
+    rows = buffer.concat(rows);
     // https://cloud.google.com/bigquery/docs/reference/v2/jobs/insert
     var request = {
       projectId: projectId,
