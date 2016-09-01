@@ -34,7 +34,10 @@ through your google cloud console.
 in your google cloud console. big-stats will create the table on the fly if not
 previously present.
 
-You can optionally provide a "flushInterval" (in seconds) for how often you wish to flush to bigquery. The default is `104` seconds which factors in BigQuery's [1000 job per day quota limit](https://cloud.google.com/bigquery/quota-policy#import). Note than statsd flushes in `10` second intervals by default.
+You can optionally provide a "flushInterval" (in seconds) for how often you wish to flush
+to bigquery. The default is `120` seconds which factors in BigQuery's
+[1000 job per day quota limit](https://cloud.google.com/bigquery/quota-policy#import).
+Note than statsd flushes in `10` second intervals by default.
 
 ## schema
 

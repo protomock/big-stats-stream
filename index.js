@@ -12,12 +12,12 @@ var statsdMetic = function(name) {
 var Writer = function(options, logger) {
   var log = logger || console;
   // flush interval
-  // defaults to 104 to avoid reaching quota limits
+  // defaults to 120 to avoid reaching quota limits
   // on number of jobs/day (currently 1000)
   // assuming 1440 minutes in a day,
-  // 1440 / 1000 = 1.44 minutes or 104 seconds
+  // 1440 / 1000 = 1.44 minutes or 104 seconds, 120 to be safe
   // https://cloud.google.com/bigquery/quota-policy#import
-  var flushInterval = options.flushInterval || 104;
+  var flushInterval = options.flushInterval || 120;
   // last time we flushed
   var lastFlush;
   // internal buffer
