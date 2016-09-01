@@ -28,3 +28,22 @@ exports.testInit = function(test) {
   //test.ok(true, "this assertion should pass");
   test.done();
 };
+
+exports.testNewRow = function(test) {
+  const key = "statsd.my.metric.sum";
+  const type = "timer";
+  const value = "1";
+  const timestamp = "123";
+
+  const expected = {
+    "metric_type": type,
+    "key": key,
+    "value": value,
+    "timestamp": timestamp,
+    "suffix": "sum"
+  };
+
+  const actual = bigStats.newRow(type, key, value, timestamp);
+  test.deepEqual(actual, expected, "new row object off");
+  test.done();
+}

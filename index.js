@@ -2,7 +2,14 @@ var google = require('googleapis');
 var bq = google.bigquery('v2');
 
 var newRow = function(type, key, value, timestamp) {
-  return { "metic_type": type, "key": key, "value": value, "timestamp": timestamp }
+  var suffix = key.split('.').pop()
+  return {
+    "metric_type": type,
+    "key": key,
+    "value": value,
+    "timestamp": timestamp,
+    "suffix": suffix
+  }
 }
 
 var statsdMetic = function(name) {
@@ -201,3 +208,5 @@ module.exports.init = function(startup_time, config, events, logger) {
   events.on('status', writer.status);
   return true;
 }
+
+module.exports.newRow = newRow;
