@@ -1,10 +1,10 @@
 sudo: required
 language: bash
 
-# Only build pushes to master.
+# exclude tags
 branches:
-  only:
-    - master
+  except:
+    - /^\d+.\d+.\d+$/
 
 services:
   - docker
