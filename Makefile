@@ -1,6 +1,6 @@
 NPM_TOKEN ?= '00000000-0000-0000-0000-000000000000'
 CI_BUILD_NUMBER ?= $(USER)-snapshot
-VERSION ?= 0.1.$(CI_BUILD_NUMBER)
+VERSION ?= 0.2.$(CI_BUILD_NUMBER)
 
 package:
 	# https://docs.npmjs.com/cli/install
@@ -15,7 +15,7 @@ test: package
 publish: test
 	@echo "//registry.npmjs.org/:_authToken=$(NPM_TOKEN)" > ~/.npmrc
 	# https://docs.npmjs.com/cli/version
-	# @npm version $(VERSION) -m "Version %s built by Travis CI - https://travis-ci.com/$TRAVIS_REPO_SLUG/builds/$TRAVIS_JOB_ID"
+	@npm version $(VERSION) -m "Version %s built by Travis CI - https://travis-ci.com/$TRAVIS_REPO_SLUG/builds/$TRAVIS_JOB_ID"
 	# https://docs.npmjs.com/cli/publish
 	@npm publish
 
