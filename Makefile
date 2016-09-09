@@ -15,6 +15,8 @@ test: package
 publish: test
 	@echo "//registry.npmjs.org/:_authToken=$(NPM_TOKEN)" > ~/.npmrc
 	@echo "publishing $(VERSION)"
+	@git config --global user.email "builds@travis-ci.com"
+	@git config --global user.email "Travis CI"
 	# https://docs.npmjs.com/cli/version
 	@npm version -m "Version %s built by Travis CI - https://travis-ci.com/$(TRAVIS_REPO_SLUG)/builds/$(TRAVIS_JOB_ID)" $(VERSION)
 	# https://docs.npmjs.com/cli/publish
