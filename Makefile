@@ -16,7 +16,7 @@ publish: test
 	@echo "//registry.npmjs.org/:_authToken=$(NPM_TOKEN)" > ~/.npmrc
 	@echo "publishing $(VERSION)"
 	# https://docs.npmjs.com/cli/version
-	@npm version --no-git-tag-version version $(VERSION)
+	@npm version --no-git-tag-version $(VERSION)
 	# https://docs.npmjs.com/cli/publish
 	@npm publish
 
