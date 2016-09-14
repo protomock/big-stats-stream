@@ -4,11 +4,11 @@ VERSION ?= 0.2.$(CI_BUILD_NUMBER)
 
 package:
 	# https://docs.npmjs.com/cli/install
-	@npm install --only=production
+	@npm install --only=production --slient
 
 test: package
 	# https://docs.npmjs.com/cli/install
-	@npm install --only=dev
+	@npm install --only=dev --slient
 	# https://docs.npmjs.com/cli/test
 	@npm test
 
