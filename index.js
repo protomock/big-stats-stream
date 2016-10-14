@@ -6,7 +6,7 @@ var newRow = function(type, key, value, timestamp) {
   return {
     "metric_type": type,
     "key": key,
-    "value": value,
+    "value": parseFloat(value).toFixed(1),
     "timestamp": timestamp,
     "suffix": suffix
   }

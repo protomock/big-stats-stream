@@ -32,7 +32,7 @@ exports.testInit = function(test) {
 exports.testNewRow = function(test) {
   const key = "statsd.my.metric.sum";
   const type = "timer";
-  const value = "1";
+  const value = "1.0";
   const timestamp = "123";
 
   const expected = {
@@ -45,5 +45,18 @@ exports.testNewRow = function(test) {
 
   const actual = bigStats.newRow(type, key, value, timestamp);
   test.deepEqual(actual, expected, "new row object off");
+  test.done();
+}
+
+exports.testNewRowFloatValue = function(test) {
+  const key = "statsd.my.metric.sum";
+  const type = "timer";
+  const value = "1";
+  const timestamp = "123";
+
+  const expected = "1.0";
+
+  const actual = bigStats.newRow(type, key, value, timestamp);
+  test.equal(actual.value + "", expected, "new row object off");
   test.done();
 }
