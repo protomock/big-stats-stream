@@ -142,6 +142,11 @@ var Writer = function(options, logger) {
         continue
       }
       var value = counters[key];
+
+      if (value == 0) {
+        continue;
+      }
+
       var valuePerSecond = counterRates[key];
       var namespace = [sanitize(key)];
       rows.push(newRow(counterMetic, namespace.concat('rate').join("."), valuePerSecond, time));
@@ -153,6 +158,11 @@ var Writer = function(options, logger) {
       if (statsdMetic(key)) {
         continue
       }
+
+      if (timerData[key].count == 0) {
+        continue;
+      }
+
       var namespace = [sanitize(key)];
       for (timerDataKey in timerData[key]) {
         var value = timerData[key][timerDataKey];
