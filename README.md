@@ -1,6 +1,13 @@
-# big stats [![Build Status](https://travis-ci.org/meetup/big-stats.svg?branch=master)](https://travis-ci.org/meetup/big-stats) [![NPM Version](https://img.shields.io/npm/v/big-stats.svg)](https://npmjs.org/package/big-stats)
+# Big Stats Stream
 
-> a google [big query](https://cloud.google.com/bigquery/) backend for [statsd](https://github.com/etsy/statsd#readme)
+> a google [big query](https://cloud.google.com/bigquery/) backend for [statsd](https://github.com/etsy/statsd#readme) using streaming inserts
+
+## running locally
+```bash
+CLIENT_EMAIL=<email> PRIVATE_KEY=<private-key> npm run dev
+
+curl -d '{"counter_rates":{"some.counter_example":2.5},"counters":{"statsd.metrics_received":1,"some.counter_example":20}}' localhost:8888
+```
 
 ## usage
 
