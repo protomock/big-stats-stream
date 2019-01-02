@@ -23,13 +23,13 @@
   },
   "homepage": "https://github.com/meetup/big-stats",
   "dependencies": {
-    "@google-cloud/bigquery": "^2.0.1",
+    "@google-cloud/bigquery": "^2.0.5",
     "googleapis": "^12.0.0"
   },
   "devDependencies": {
-    "ava": "^1.0.0-rc.2",
+    "ava": "^1.0.1",
     "mock-injector": "^0.2.0",
     "nodeunit": "^0.9.1",
-    "sinon": "^7.1.1"
+    "sinon": "^7.2.2"
   }
 }
