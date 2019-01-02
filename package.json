@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "run": "node -e require('.').run()",
-    "test": "nodeunit test",
+    "test": "node_modules/ava/cli.js",
     "postversion": "echo postversion"
   },
   "repository": {
@@ -23,9 +23,13 @@
   },
   "homepage": "https://github.com/meetup/big-stats",
   "dependencies": {
+    "@google-cloud/bigquery": "^2.0.1",
     "googleapis": "^12.0.0"
   },
   "devDependencies": {
-    "nodeunit": "^0.9.1"
+    "ava": "1.0.0-rc.2",
+    "mock-injector": "^0.2.0",
+    "nodeunit": "^0.9.1",
+    "sinon": "^7.1.1"
   }
 }
