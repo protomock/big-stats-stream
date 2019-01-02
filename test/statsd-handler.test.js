@@ -1,5 +1,4 @@
 import test from "ava";
-import events from "events";
 import sinon from "sinon";
 import MockInjector from "mock-injector";
 const { mock, clear } = MockInjector(__dirname);
