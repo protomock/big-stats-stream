@@ -24,7 +24,9 @@
   "homepage": "https://github.com/meetup/big-stats",
   "dependencies": {
     "@google-cloud/bigquery": "^2.0.5",
-    "googleapis": "^12.0.0"
+    "googleapis": "^12.0.0",
+    "cryptiles": ">=4.1.2",
+    "hoek": ">=4.2.1"
   },
   "devDependencies": {
     "ava": "^1.0.1",
