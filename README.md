@@ -4,7 +4,7 @@
 
 ## running locally
 ```bash
-CLIENT_EMAIL=<email> PRIVATE_KEY=<private-key> npm run dev
+GOOGLE_APPLICATION_CREDENTIALS="<path/to/service-account.json>" npm run dev
 
 curl -d '{"counter_rates":{"some.counter_example":2.5},"counters":{"statsd.metrics_received":1,"some.counter_example":20}}' localhost:8888
 ```
@@ -18,15 +18,12 @@ server's configuration under backends
 cat config.json
 {
   bigquery: {
-    credentials: {
-       ...
-    },
     projectId: "your-gcp-project-id",
     datasetId: "your_big_query_data_set_id",
     tableId: "your_big_query_table_id"
-  }
-  , backends: ["big-stats"],
-  , ...
+  }, 
+  backends: ["big-stats"],
+  ...
 }
 ```
 

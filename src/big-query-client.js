@@ -2,11 +2,10 @@ const { BigQuery } = require("@google-cloud/bigquery");
 
 module.exports = {
   BigQueryClient: options => {
-    const credentials = options.credentials;
     const projectId = options.projectId;
     const datasetId = options.datasetId;
     const tableId = options.tableId;
-    const bq = new BigQuery({ projectId, credentials });
+    const bq = new BigQuery({ projectId });
 
     return {
       insert: rows => {

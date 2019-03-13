@@ -4,11 +4,11 @@ const { isValid } = require('./src/credential-validator')
 // statsd entrypoint
 module.exports.init = function(startup_time, config, events, logger) {
   let options = config.bigquery;
-  let credentials = options.credentials;
+  let credentials = process.env.GOOGLE_APPLICATION_CREDENTIALS;
   logger = logger || console;
 
   if(!isValid(credentials)) {
-    logger.log("failed to initialize due missing authentication credentials");
+    logger.log("Please Set GOOGLE_APPLICATION_CREDENTIALS environment variable");
     return false;
   }
 
