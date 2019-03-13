@@ -1,6 +1,6 @@
 {
   "name": "big-stats-stream",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "google big query backend for statsd using streaming inserts",
   "main": "index.js",
   "scripts": {
