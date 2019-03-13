@@ -4,17 +4,17 @@ import sinon from 'sinon';
 import MockInjector from 'mock-injector'
 const { mock, clear } = MockInjector(__dirname)
 const { StatsdHandler } = mock('../src/statsd-handler')
+const { isValid } = mock('../src/config-validator')
 const BigStats = clear('..')
 let config = { bigquery: { projectID: "", datasetId: "", tableId: "" } }
 
 test('Init when credentials are valid, should create statsd handler and set the events handler', t => {
-  process.env.GOOGLE_APPLICATION_CREDENTIALS='./fixtures/fake-service-account'
+  isValid.returns(true)
   let emitter = new events.EventEmitter()
   let statsdHandlerMock = {
     flush: sinon.stub(),
     status: sinon.stub()
   }
-
   StatsdHandler.returns(statsdHandlerMock)
 
   let success = BigStats.init(123456, config, emitter, { log: sinon.stub() })
@@ -27,18 +27,17 @@ test('Init when credentials are valid, should create statsd handler and set the 
 });
 
 test('Init when credentials are invalid, should not create handler', t => {
-  delete process.env.GOOGLE_APPLICATION_CREDENTIALS
-
+  isValid.returns(false)
   let logger = { log: sinon.stub() }
   let success = BigStats.init(123456, config, 'some-emitter', logger)
-  t.deepEqual(logger.log.firstCall.args, ["Please Set GOOGLE_APPLICATION_CREDENTIALS environment variable"])
+  t.deepEqual(logger.log.firstCall.args, ["Please set GOOGLE_APPLICATION_CREDENTIALS environment variable"])
   t.false(success)
 });
 
 test('Init when when logger is not provided, uses console', t => {
-  delete process.env.GOOGLE_APPLICATION_CREDENTIALS
+  isValid.returns(false)
   let consoleSpy = sinon.spy(console, 'log')
   let success = BigStats.init(123456, config, 'some-emitter')
-  t.deepEqual(consoleSpy.firstCall.args, ["Please Set GOOGLE_APPLICATION_CREDENTIALS environment variable"])
+  t.deepEqual(consoleSpy.firstCall.args, ["Please set GOOGLE_APPLICATION_CREDENTIALS environment variable"])
   t.false(success)
 });
